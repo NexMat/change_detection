@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-def parcourir_image(img, rayon):
+def parcourir_image(img, rayon = 1):
 
     haut_img = len(img)
     long_img = len(img[0])

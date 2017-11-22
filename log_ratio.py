@@ -11,8 +11,8 @@ def log_ratio(img1, img2):
     Les tableaux doivent continer des entiers representants les niveaux de gris.
     Les valeurs seront decalees de 1 afin d'eviter les valeurs a 0.
 
-    :param img1: la première image à comparer
-    :param img2: la deuxième image à comparer
+    :param img1: la première image a comparer
+    :param img2: la deuxième image a comparer
     :type img1: numpy array a deux dimensions de int
     :type img2: numpy array a deux dimensions de int
     :return: retourne |log(X1 / X2)| où X1 appartient à img1 et X2 appartient à img2
@@ -42,12 +42,7 @@ def log_ratio(img1, img2):
     return lr_img
 
 
-def main():
-    """ Exemple d'utilisation du log ratio.
-
-    La fonction donne deux exemples d'utilisation du log ratio: sur une image uniforme
-    puis sur un degrade.
-    """
+def test():
 
     # parametres
     img_size = 255
@@ -144,6 +139,17 @@ def main():
     plt.imshow(lr_img, cmap = "gray", vmin = 1, vmax = 256)
     plt.show()
 
+
+def main():
+    """ Exemple d'utilisation du log ratio.
+
+    La fonction donne deux exemples d'utilisation du log ratio: sur une image uniforme
+    puis sur un degrade.
+    """
+
+    # parametres
+    img_size = 255
+    lambda_bruit = 30
 
     # creation de deux images degrades
     img1 = np.array([[i for i in range(img_size)] for j in range(img_size)])
