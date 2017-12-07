@@ -5,126 +5,101 @@ import matplotlib.image as mpimg
 
 from log_ratio import log_ratio
 from parcours_img import parcourir_image
+from parcours_img import index_voisins
 from estim_dist import estimate_parameter
 
 
 # TODO read_opt
 
+threshold = 0.8
+p_i = 0.1 # prior
+p_v = 0.4 # observation
+
 def assign_proba(img, lambda_est):
 
-    voisinage = parcourir_image(lr_img)
+    global threshold
+    global proba_assigned
 
-    proba = np.zeros((len(lr_img), len(lr_img[0])))
+    haut_img = len(img)
+    long_img = len(img[0])
 
-    for i in range(len(lr_img)):
-        for j in range(len(lr_img[0])):
-            for lig in voisinage[i][j]:
-                for val in lig:
+    voisinage = parcourir_image(img)
 
-                    if val == None:
-                        pass
+    proba = np.zeros((haut_img, long_img))
 
-                    elif val >= 2:
-                        proba[i][j] += 0.11
+    for i in range(len(img)):
+        for j in range(len(img[0])):
 
-                    elif val > 1:
-                        proba[i][j] += 0.05
+            # p_v
+            for k,l in index_voisins(i, j, haut_img, long_img):
+                if (i, j) != (k, l):
+                    if is_superior(img[k][l], lambda_est, threshold):
+                        proba[i][j] += p_v #TODO
+
+
+            # p_i
+            if is_superior(img[i][j], lambda_est, threshold):
+                proba[i][j] += p_i
 
     return proba
+
+def is_superior(pixel_value, dist_param, threshold):
+    """
+    threshold: percentage
+    """
+
+    cdf = lambda x : 1 - (np.exp(-(x**2) / (2 * (dist_param**2))))
+    #cdf_inv = lambda x : dist_param * np.sqrt(-2 * np.log(1-x))
+
+    #threshold_pixel_intensity = cdf_inv(threshold)
+    #print("threshold:", threshold)
+    #print("threshold_pixel_intensity:", threshold_pixel_intensity)
+
+    perc = cdf(pixel_value)
+    
+    #print(perc, ">", threshold, "?")
+    return perc >= threshold
+
 
 def test():
     
     # parametres
-    img_size = 255
-    lambda_bruit = 20
+    img_size = 100
+    lambda_r = 80
 
-    # creation de deux images degrades
-    img1 = np.array([[i for i in range(img_size)] for j in range(img_size)])
-    img2 = np.array([[i for i in range(img_size)] for j in range(img_size)])
+    # creation de deux images a partir d'une distribution de rayleigh
+    img1 = np.random.rayleigh(lambda_r, (img_size, img_size))
+    img2 = np.copy(img1)
 
     # modification de la deuxieme image:
     # creation de deux lignes uniformes sur toute la longueur
     img2[img_size // 2] = [10 for i in range(img_size)]
     img2[(img_size // 2) + 1] = [10 for i in range(img_size)]
 
-    # bruitage des images
-    img1 = img1 + np.random.rayleigh(lambda_bruit, (img_size, img_size))
-    img2 = img2 + np.random.rayleigh(lambda_bruit, (img_size, img_size))
+    echantillon = np.array([lgn[-40:] for lgn in img2[-40:]]) # echantillon de taille 40x40 en bas à droite
 
-    data = np.array([lgn[-40:] for lgn in img2[-40:]]) # echantillon de taille 40x40 en bas à droite
-
-    params = estimate_parameter(data, "rayleigh")
+    params = estimate_parameter(echantillon, "rayleigh")
     lambda_est = params[1]
 
-    assign_prob(img2, lambda_est)
+    probs = assign_prob(img2, lambda_est)
 
 
 
-#    proba = assign_probar(lr_img)
-#
-#    q1, q2, q3 = 0, 0, 0
-#    # modification des valeurs pour l'affichage
-#    for i in range(img_size):
-#        for j in range(img_size):
-#            if lr_img[i][j] >= 2:
-#                lr_img[i][j] = 250
-#                q1 += 1
-#            elif lr_img[i][j] >= 1:
-#                lr_img[i][j] = 200
-#                q2 += 1
-#            elif lr_img[i][j] >= 0:
-#                q3 += 1
-#                lr_img[i][j] = 50
-#
-#    #print("Nombre de pixels changés:         ", img_size * 2)
-#    #print("Valeurs entre 0 inclus et 1 exclu:", q3)
-#    #print("Valeurs entre 1 inclus et 2 exclu:", q2)
-#    #print("Valeurs supérieures a 2 inclus:   ", q1)
-#
-#    valeurs = []
-#    for lgn in proba:
-#        #print(lgn)
-#        for val in lgn:
-#            if val != 0 and val not in valeurs:
-#                valeurs.append(val)
-#
-#    valeurs = np.sort(valeurs)
-#
-#    print("Probabilités assignées:")
-#    for val in valeurs:
-#        print(val)
-#
-#    print("Pour quitter: q")
-#    while True:
-#
-#        try:
-#            param_seuil = input("Entrez la valeur du seuil: ")
-#        except EOFError:
-#            print()
-#            break
-#
-#        if param_seuil == 'q':
-#            break
-#        else:
-#            param_seuil = float(param_seuil)
-#
-#        lr_img_smooth = np.zeros((img_size, img_size))
-#
-#        for i in range(img_size):
-#            for j in range(img_size):
-#                if proba[i][j] >= param_seuil: # parametre
-#                    lr_img_smooth[i][j] = 250
-#
-#        # affiche les images en niveaux de gris
-#        plt.subplot(141) # premiere image
-#        plt.imshow(img1, cmap = "gray", vmin = 1, vmax = 256)
-#        plt.subplot(142) # deuxieme image
-#        plt.imshow(img2, cmap = "gray", vmin = 1, vmax = 256)
-#        plt.subplot(143) # image des differences
-#        plt.imshow(lr_img, cmap = "gray", vmin = 1, vmax = 256)
-#        plt.subplot(144) # image des differences lissee
-#        plt.imshow(lr_img_smooth, cmap = "gray", vmin = 1, vmax = 256)
-#        plt.show()
 
 if __name__ == '__main__':
-    test()
+    size = 1000
+    param = 80
+    percentage_treshold = 0.6
+    print(is_superior(150, param, percentage_treshold))
+    data = np.random.rayleigh(80, size)
+
+    values, base = np.histogram(data, bins=255) # evaluate the histogram
+    cumulative = np.cumsum((values / size) * 100) # evaluate the cumulative (normalized)
+
+    plt.subplot(121)
+    plt.hist(data) # plot the cumulative function
+    plt.subplot(122)
+    plt.plot(cumulative) # plot the survival function
+    
+    plt.show()
+
