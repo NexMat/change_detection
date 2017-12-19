@@ -12,7 +12,7 @@ def parcourir_image(img, rayon = 1):
 
     for i in range(haut_img):
         for j in range(long_img):
-            index = index_voisins(i, j, rayon, haut_img, long_img)
+            index = index_voisins(i, j, haut_img, long_img, rayon)
             voisins_tmp = [[None for i_ in range(rayon * 2 + 1)] for j_ in range(rayon * 2 + 1)]
             for k in range(rayon * 2 + 1):
                 for l in range(rayon * 2 + 1):
@@ -30,7 +30,7 @@ def parcourir_image(img, rayon = 1):
 def is_in_array(i, j, haut_img, long_img):
     return i >= 0 and j >= 0 and i < haut_img and j < long_img
 
-def index_voisins(i, j, rayon = 1, haut_img, long_img):
+def index_voisins(i, j, haut_img, long_img, rayon = 1):
     voisins = []
     for shift_i in range(-rayon, rayon + 1):
         for shift_j in range(-rayon, rayon + 1):
