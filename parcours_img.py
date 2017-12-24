@@ -31,6 +31,7 @@ def is_in_array(i, j, haut_img, long_img):
     return i >= 0 and j >= 0 and i < haut_img and j < long_img
 
 def index_voisins(i, j, haut_img, long_img, rayon = 1):
+    """ retourne les index des voisins"""
     voisins = []
     for shift_i in range(-rayon, rayon + 1):
         for shift_j in range(-rayon, rayon + 1):
@@ -45,18 +46,21 @@ if __name__ == '__main__':
     
     img_size = 256
 
-    img = np.array([[i for i in range(img_size)] for j in range(img_size)])
+    #img = np.array([[i for i in range(img_size)] for j in range(img_size)])
 
-    #plt.imshow(img, cmap = "gray", vmin = 1, vmax = 256)
-    #plt.show()
+    ##plt.imshow(img, cmap = "gray", vmin = 1, vmax = 256)
+    ##plt.show()
 
-    voisinages = parcourir_image(img, 1)
+    #voisinages = parcourir_image(img, 1)
 
-    for i in range(3):
-        for j in range(3):
-            print("voisins de", i * 127, j * 127, ":")
-            for l in voisinages[i * 127][j * 127]:
-                print(l)
-            print()
-            #plt.imshow(voisinages[i * 127][j * 127], cmap = "gray", vmin = 1, vmax = 256)
-            #plt.show()
+    #for i in range(3):
+    #    for j in range(3):
+    #        print("voisins de", i * 127, j * 127, ":")
+    #        for l in voisinages[i * 127][j * 127]:
+    #            print(l)
+    #        print()
+    #        #plt.imshow(voisinages[i * 127][j * 127], cmap = "gray", vmin = 1, vmax = 256)
+    #        #plt.show()
+
+
+    print(index_voisins(10, 0, 20, 20))

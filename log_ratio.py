@@ -8,7 +8,7 @@ def log_ratio(img1, img2):
 
     La fonction fait prend le log de la division des deux images, pixel par pixel.
     Les images doivent être de même taille.
-    Les tableaux doivent continer des entiers representants les niveaux de gris.
+    Les tableaux doivent continer des entiers representants les niveaux de gris (0 - 255).
     Les valeurs seront decalees de 1 afin d'eviter les valeurs a 0.
 
     :param img1: la première image a comparer

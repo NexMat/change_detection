@@ -29,15 +29,14 @@ def apply_mask(img, mask):
             if mask[i][j] == 255:
                 img[i][j] = 255
 
-def create_image(img_size, change="square"):
+def create_image(img_size, change="square", distribution="rayleigh", lambda_r=80):
     """ créer une image de test
     retourne l'image originale bruitée, le changement et l'image bruitée avec un changement
     """
 
-    #TODO implementer d'autres changements
+    # TODO implementer d'autres changements
+    # TODO implementer d'autres distributions
 
-    lambda_r = 80
-    
     # image originale
     img = np.random.rayleigh(lambda_r, (img_size, img_size))
     # image à modifier
@@ -46,30 +45,44 @@ def create_image(img_size, change="square"):
     # valeurs au-dessus de l'intensite de pixel maximale
     for i in range(img_size):
         for j in range(img_size):
-            if img1[i][j] > 255:
-                img1[i][j] = 255
+            if img[i][j] > 255:
+                img[i][j] = 255
 
-            if img2[i][j] > 255:
-                img2[i][j] = 255
+            if img_modif[i][j] > 255:
+                img_modif[i][j] = 255
 
     # masque de changement
     mask = square_mask(img_size)
     # application du changement
     apply_mask(img_modif, mask)
 
-    return img, changement, img_modif
+    return img, mask, img_modif
+
+def count_changes(mask):
+    """Compte le nombre de changements et de non-changement du mask"""
+
+    total_change    = 0
+    total_unchanged = 0
+
+    for i in range(len(mask)):
+        for j in range(len(mask[0])):
+            if mask[i][j] == 255:
+                total_change += 1
+            else:
+                total_unchanged += 1
+
+    return total_change, total_unchanged
 
 def count_detection(detection, mask):
     """Compare la detection finale avec le mask d'origine
     sur les deux matrices:
         pixel = 0 si pas de changement
         pixel = 255 si changement
-    return: le nombre de bonne détection, le nombre de faux positifs, le nombre total a detecter
+    return: le nombre de bonne détection, le nombre de faux positifs
     """
 
     positive = 0
     false_positive = 0
-    total_change   = 0
 
     for i in range(len(detection)):
         for j in range(len(detection[0])):
@@ -84,12 +97,36 @@ def count_detection(detection, mask):
                 elif mask[i][j] == 0:
                     false_positive += 1
 
-            if mask[i][j] == 255:
-                total_change += 1
-    return positive, false_positive, total_change
+    return positive, false_positive
+
+def img_show(*images, axis="horizontal"):
+    """
+    Displaying grayscale images
+    Pixel range: 0 - 255
+    """
+
+    if axis == "horizontal":
+
+        cfg = 100 + len(images) * 10
+
+        for i in range(len(images)):
+            plt.subplot(cfg + i + 1)
+            plt.imshow(images[i], cmap = "gray", vmin = 0, vmax = 255)
+
+    elif axis == "vertical":
+        cfg = len(images) * 100 + 10
+
+        for i in range(len(images)):
+            plt.subplot(cfg + i + 1)
+            plt.imshow(images[i], cmap = "gray", vmin = 0, vmax = 255)
+
+    plt.show()
 
 
 def plot_cumulative():
+    """ Plots the pdf and cdf of a distribution
+    Here: they rayleigh distribution
+    """
     
     size = 1000
     param = 80
@@ -126,8 +163,5 @@ def is_superior(pixel_value, dist_param, threshold):
     return perc >= threshold
 
 if __name__ == '__main__':
+    pass
     #plot_cumulative()
-
-    mask = square_mask(255)
-    plt.imshow(mask, cmap = "gray", vmin = 0, vmax = 255)
-    plt.show()
