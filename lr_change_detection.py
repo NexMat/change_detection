@@ -372,14 +372,14 @@ def count_detection(img_orig, detection):
     return count_positive, count_FA
 
 
-def lr_change_detection(img_orig, img_modif):
+def lr_change_detection(img_orig, img_modif, proba_x, proba_v):
     """ computes the change detection with the log ratio
     return a black and white matrix indicating changes in white
     """
 
-    proba_x = 0.12
-    proba_v = 0.11
-
+#    proba_x = 0.12
+#    proba_v = 0.11
+#
     # compute log ratio
     lr_img = log_ratio(img_orig, img_modif)
 
