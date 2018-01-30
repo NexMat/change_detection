@@ -5,12 +5,11 @@ import matplotlib.image as mpimg
 import util_test as utest
 
 from log_ratio import log_ratio
-from parcours_img import index_voisins
 from estim_dist import estimate_parameter
 
 # TODO read_opt
 
-def assign_proba_lr(lr_img, proba_x, proba_v):
+def assign_proba_lr(lr_img, proba_x, proba_v, nbh_size):
     """ Assigne des probabilités a chaque pixel et a son voisinage
     a partir de l'image resultante du log ratio
 
@@ -25,11 +24,13 @@ def assign_proba_lr(lr_img, proba_x, proba_v):
 
     proba = np.zeros((len(lr_img), len(lr_img[0])))
 
-    for i in range(len(lr_img)):
-        for j in range(len(lr_img[0])):
+    h, w = lr_img.shape
 
-            index_vsn = index_voisins(i, j, len(lr_img), len(lr_img[0]))
+    for i in range(h):
+        for j in range(w):
 
+            index_vsn = utest.index_voisins(i, j, (h, w), nbh_size)
+            nb_vsn = len(index_vsn) - 1 # On calcule dynamiquement le nombre de voisins (notamment pour les bords)
 
             for index in index_vsn:
                 if index == None:
@@ -44,9 +45,9 @@ def assign_proba_lr(lr_img, proba_x, proba_v):
 
                     # pixel voisin
                     elif index != (i, j):
-                         proba[i][j] += proba_v 
+                         proba[i][j] += (proba_v / nb_vsn)
 
-    return proba
+    return proba / 2
 
 
 def test():
@@ -372,19 +373,16 @@ def count_detection(img_orig, detection):
     return count_positive, count_FA
 
 
-def lr_change_detection(img_orig, img_modif, proba_x, proba_v):
+def lr_change_detection(img_orig, img_modif, proba_x, proba_v, nbh_size):
     """ computes the change detection with the log ratio
     return a black and white matrix indicating changes in white
     """
 
-#    proba_x = 0.12
-#    proba_v = 0.11
-#
     # compute log ratio
     lr_img = log_ratio(img_orig, img_modif)
 
     # assign to each pixel a probability
-    proba = assign_proba_lr(lr_img, proba_x, proba_v)
+    proba = assign_proba_lr(lr_img, proba_x, proba_v, nbh_size)
 
     return proba
     

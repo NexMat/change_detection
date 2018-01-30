@@ -5,44 +5,40 @@ import matplotlib.image as mpimg
 import util_test as utest
 
 from log_ratio import log_ratio
-from parcours_img import parcourir_image
-from parcours_img import index_voisins
 from estim_dist import estimate_parameter
 
-# TODO read_opt
-
 threshold = 0.8
-p_i = 0.2 # prior
-p_v = 0.1 # observation
 
-def assign_proba_mod(img, lambda_est, proba_x, proba_v):
+def assign_proba_mod(img, lambda_est, proba_x, proba_v, nbh_size):
+    """
+    proba_x and proba_v are between 0 and 1
+    """
 
     global threshold
-    global proba_assigned
 
-    haut_img = len(img)
-    long_img = len(img[0])
+    h, w = img.shape
 
-    proba = np.zeros((haut_img, long_img))
+    proba = np.zeros((h, w))
 
-    for i in range(len(img)):
-        for j in range(len(img[0])):
+    for i in range(h):
+        for j in range(w):
 
-            index_vsn = index_voisins(i, j, haut_img, long_img)
+            index_vsn = utest.index_voisins(i, j, (h, w), rayon = nbh_size)
+            nb_vsn = len(index_vsn) - 1 # On calcule dynamiquement le nombre de voisins (notamment pour les bords)
 
             # p_v
             for index in index_vsn:
                 if index != None and index != (i, j):
                     k, l = index
                     if is_superior(img[k][l], lambda_est, threshold):
-                        proba[i][j] += proba_v 
+                        proba[i][j] += (proba_v / nb_vsn) # On pondère en fonction du nombre de voisins
 
 
             # p_i
-            if is_superior(img[i][j], lambda_est, threshold): #TODO adjust probability
+            if is_superior(img[i][j], lambda_est, threshold):
                 proba[i][j] += proba_x
 
-    return proba
+    return proba / 2
 
 def is_superior(pixel_value, dist_param, threshold):
     """
@@ -50,15 +46,8 @@ def is_superior(pixel_value, dist_param, threshold):
     """
 
     cdf = lambda x : 1 - (np.exp(-(x**2) / (2 * (dist_param**2))))
-    #cdf_inv = lambda x : dist_param * np.sqrt(-2 * np.log(1-x))
-
-    #threshold_pixel_intensity = cdf_inv(threshold)
-    #print("threshold:", threshold)
-    #print("threshold_pixel_intensity:", threshold_pixel_intensity)
-
     perc = cdf(pixel_value)
     
-    #print(perc, ">", threshold, "?")
     return perc >= threshold
 
 def test():
@@ -152,21 +141,18 @@ def plot_cumulative():
     
     plt.show()
 
-def modelisation_detection(img_orig, img_modif, proba_x, proba_v):
+def modelisation_detection(img_orig, img_modif, proba_x, proba_v, nbh_size):
 
     """ computes the change detection with the log ratio
     return a black and white matrix indicating changes in white
     """
-
-    #proba_x = 0.12
-    #proba_v = 0.11
 
     # estimate the parameter
     echantillon = np.array([lgn[-40:] for lgn in img_modif[-40:]]) # echantillon de taille 40x40 en bas à droite
     loc, lambda_est = estimate_parameter(echantillon, "rayleigh")
 
     # assign to each pixel a probability
-    proba_mod = assign_proba_mod(img_modif, lambda_est, proba_x, proba_v)
+    proba_mod = assign_proba_mod(img_modif, lambda_est, proba_x, proba_v, nbh_size)
 
     return proba_mod
 

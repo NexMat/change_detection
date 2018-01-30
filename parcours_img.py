@@ -31,7 +31,14 @@ def is_in_array(i, j, haut_img, long_img):
     return i >= 0 and j >= 0 and i < haut_img and j < long_img
 
 def index_voisins(i, j, haut_img, long_img, rayon = 1):
-    """ retourne les index des voisins"""
+    """ retourne les index des voisins 
+        i,j; coordonnees
+        img_shape; hauteur et longueur de l'image
+        rayon: determine le rayon
+              0 -> 4 voisins
+              1 -> 8 voisins
+              2 -> 24 voisins
+    """
     voisins = []
     for shift_i in range(-rayon, rayon + 1):
         for shift_j in range(-rayon, rayon + 1):

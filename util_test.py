@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 def square_mask(img_size, thickness=10):
     """ crée un masque de changement carre creux d'une certaine epaisseur
@@ -162,6 +163,38 @@ def is_superior(pixel_value, dist_param, threshold):
     #print(perc, ">", threshold, "?")
     return perc >= threshold
 
+def is_in_array(i, j, haut_img, long_img):
+    return i >= 0 and j >= 0 and i < haut_img and j < long_img
+
+def index_voisins(i, j, img_shape, rayon = 1):
+    """ retourne les index des voisins 
+        i,j; coordonnees
+        img_shape; hauteur et longueur de l'image
+        rayon: determine le rayon
+              0 -> 4 voisins
+              1 -> 8 voisins
+              2 -> 24 voisins
+    """
+    voisins = []
+    h, w = img_shape
+    for shift_i in range(-rayon, rayon + 1):
+        for shift_j in range(-rayon, rayon + 1):
+            #print("voisins", shift_i + i, shift_j + j)
+            if is_in_array(i + shift_i, j + shift_j, h, w):
+                voisins.append((i + shift_i, j + shift_j))
+            else:
+                voisins.append(None)
+    return voisins
+
+
+def open_images():
+    img1 = mpimg.imread("L2.png")
+    for i in img1:
+        for j in i:
+            print(j)
+
+
+
 if __name__ == '__main__':
-    pass
     #plot_cumulative()
+    open_images()
