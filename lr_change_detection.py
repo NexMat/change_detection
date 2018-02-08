@@ -37,7 +37,7 @@ def assign_proba_lr(lr_img, proba_x, proba_v, nbh_size):
                     continue
 
                 k, l = index
-                if lr_img[k][l] >= 1:
+                if lr_img[k][l] >= 0.6:
 
                     # pixel courant
                     if index == (i, j):
