@@ -134,31 +134,33 @@ def optim_param():
 
 def detection_image():
 
-    img = cv2.imread("L2_crop.png", cv2.IMREAD_GRAYSCALE)
-    img_modif = cv2.imread("L3_inv_crop.png", cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread("L2_crop2.png", cv2.IMREAD_GRAYSCALE)
+    img_modif = cv2.imread("L3_crop2.png", cv2.IMREAD_GRAYSCALE) # TODO Multiplier par 255
 
-    img = np.array(img * 255, dtype=np.int32)
-    img_modif = np.array(img_modif * 255, dtype=np.int32)
+    #img = cv2.imread("L2_crop2.png", cv2.IMREAD_GRAYSCALE)
+    #img_modif = cv2.imread("L3_crop2.png", cv2.IMREAD_GRAYSCALE)
+
+    img = np.array(img, dtype=np.int32)
+    img_modif = np.array(img_modif, dtype=np.int32)
 
     # Log ratio method
-    lr_detection_probas = lr_change_detection(img, img_modif, 0, 0.7, 2)
+    lr_detection_probas = lr_change_detection(img, img_modif, 0, 0.7, 10)
     print('[+] Methode LR terminée')
     
     # Modelisation method
-    mod_detection_probas = modelisation_detection(img, img_modif, 0.3, 0.9, 2)
-    print('[+] Methode mod terminée')
+    #mod_detection_probas = modelisation_detection(img, img_modif, 0.3, 0.9, 2)
+    #print('[+] Methode mod terminée')
 
-    lr_detection  = np.zeros((img_size, img_size))
-    mod_detection = np.zeros((img_size, img_size))
+    lr_detection  = np.zeros(img.shape)
+    mod_detection = np.zeros(img.shape)
     
-    print('[+] Seuillage')
     # Treshold
+    print('[+] Seuillage')
     lr_detection[lr_detection_probas >= 0.1] = 255
-    mod_detection[mod_detection_probas >= 0.4] = 255
+    #mod_detection[mod_detection_probas >= 0.4] = 255
     
     utest.img_show(img, img_modif, lr_detection)
-
-    utest.img_show(img, img_modif, mod_detection)
+    #utest.img_show(img, img_modif, mod_detection)
 
 if __name__ == '__main__':
     #optim_param()
